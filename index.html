@@ -1,0 +1,1975 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bizim Hikayemiz | İyi ki Doğdun Gülümmmm</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500..900;1,400..900&family=Poppins:wght@300;400;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg-dark: #0b0307;
+        --c-wine: #3a0715;
+        --c-red: #ff2d55;
+        --c-hot: #ff5c8a;
+        --c-light: #ffc2d4;
+        --c-cream: #fff4f7;
+        --f-serif: "Playfair Display", Georgia, serif;
+        --f-sans: "Poppins", sans-serif;
+        --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        user-select: none;
+      }
+
+      body {
+        background-color: var(--bg-dark);
+        color: var(--c-cream);
+        font-family: var(--f-sans);
+        overflow: hidden;
+        width: 100vw;
+        height: 100vh;
+      }
+
+      /* Film Grain / Noise Katmanı */
+      .noise {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        pointer-events: none;
+        opacity: 0.045;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+
+      /* Dinamik Arka Plan & Işık Huzmesi */
+      .bg-layer {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        background: radial-gradient(
+          circle at 50% 50%,
+          var(--c-wine) 0%,
+          var(--bg-dark) 85%
+        );
+        transition: background 1.5s ease;
+      }
+      .ambient-flare {
+        position: fixed;
+        width: 45vw;
+        height: 45vw;
+        background: radial-gradient(
+          circle,
+          rgba(255, 45, 85, 0.22) 0%,
+          transparent 70%
+        );
+        border-radius: 50%;
+        filter: blur(60px);
+        z-index: 0;
+        pointer-events: none;
+        animation: moveFlare 12s infinite alternate ease-in-out;
+      }
+      @keyframes moveFlare {
+        0% {
+          transform: translate(-10vw, -10vh) scale(1);
+        }
+        100% {
+          transform: translate(55vw, 45vh) scale(1.3);
+        }
+      }
+
+      canvas {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      /* Üst İlerleme Çubukları (Instagram Stories) */
+      .story-header {
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        right: 16px;
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .story-bars {
+        display: flex;
+        gap: 3px;
+        width: 100%;
+      }
+      .bar-wrap {
+        flex: 1;
+        height: 3px;
+        background: rgba(255, 244, 247, 0.18);
+        border-radius: 3px;
+        overflow: hidden;
+      }
+      .bar-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--c-hot), var(--c-cream));
+        border-radius: 3px;
+      }
+      .story-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.75rem;
+        color: rgba(255, 244, 247, 0.5);
+        padding: 0 4px;
+        font-weight: 600;
+        letter-spacing: 1px;
+      }
+
+      /* Tıklama Alanları */
+      .tap-left,
+      .tap-right {
+        position: fixed;
+        top: 0;
+        height: 100vh;
+        z-index: 90;
+      }
+      .tap-left {
+        left: 0;
+        width: 30vw;
+        cursor: w-resize;
+      }
+      .tap-right {
+        right: 0;
+        width: 70vw;
+        cursor: e-resize;
+      }
+
+      /* Ana Sahne ve Slaytlar */
+      .stage {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 24px 40px;
+      }
+      .slide-content {
+        width: 100%;
+        max-width: 960px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+
+      /* Stagger Giriş / Çıkış Animasyonları */
+      .stagger-item {
+        opacity: 0;
+        transform: translateY(32px) scale(0.98);
+        transition:
+          opacity 0.75s var(--ease-out),
+          transform 0.75s var(--ease-out);
+      }
+      .slide-active .stagger-item {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      .slide-exit .stagger-item {
+        opacity: 0;
+        transform: translateY(-15px) scale(1.06);
+        transition:
+          opacity 0.45s ease,
+          transform 0.45s ease;
+      }
+
+      /* Tipografi ve Etiketler */
+      .tag {
+        display: inline-block;
+        font-size: 0.8rem;
+        font-weight: 800;
+        letter-spacing: 2.5px;
+        color: var(--c-light);
+        text-transform: uppercase;
+        background: rgba(255, 45, 85, 0.14);
+        border: 1px solid rgba(255, 194, 212, 0.28);
+        padding: 7px 18px;
+        border-radius: 30px;
+        margin-bottom: 18px;
+        backdrop-filter: blur(8px);
+      }
+
+      .title-serif {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-weight: 700;
+        font-size: clamp(2.2rem, 5.5vw, 4.4rem);
+        line-height: 1.15;
+        background: linear-gradient(180deg, #ffffff 0%, var(--c-light) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 8px 25px rgba(255, 45, 85, 0.25));
+        margin-bottom: 14px;
+      }
+
+      .giant-number {
+        font-family: var(--f-sans);
+        font-weight: 900;
+        font-size: clamp(4.8rem, 16vw, 11.5rem);
+        line-height: 0.95;
+        font-variant-numeric: tabular-nums;
+        background: linear-gradient(
+          135deg,
+          var(--c-red) 0%,
+          var(--c-hot) 50%,
+          var(--c-light) 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 0 35px rgba(255, 45, 85, 0.45));
+        margin: 10px 0;
+      }
+
+      .unit-label {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-weight: 600;
+        font-size: clamp(1.5rem, 3.5vw, 2.4rem);
+        color: var(--c-light);
+        margin-top: -5px;
+        margin-bottom: 12px;
+      }
+
+      .desc {
+        font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+        line-height: 1.6;
+        color: rgba(255, 244, 247, 0.9);
+        max-width: 680px;
+        font-weight: 400;
+        margin-top: 12px;
+      }
+      .desc strong {
+        color: var(--c-light);
+        font-weight: 700;
+      }
+
+      /* Mesaj Balonları */
+      .chat-container {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        width: 100%;
+        max-width: 620px;
+        margin: 16px 0;
+      }
+      .bubble {
+        position: relative;
+        padding: 16px 22px;
+        border-radius: 20px;
+        text-align: left;
+        font-size: clamp(1rem, 2vw, 1.25rem);
+        line-height: 1.5;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(12px);
+      }
+      .bubble.me {
+        align-self: flex-end;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 45, 85, 0.35),
+          rgba(58, 7, 21, 0.85)
+        );
+        border: 1px solid rgba(255, 92, 138, 0.45);
+        border-bottom-right-radius: 4px;
+      }
+      .bubble.her {
+        align-self: flex-start;
+        background: rgba(255, 244, 247, 0.09);
+        border: 1px solid rgba(255, 194, 212, 0.25);
+        border-bottom-left-radius: 4px;
+      }
+      .bubble-sender {
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 4px;
+        display: block;
+      }
+      .bubble.me .bubble-sender {
+        color: var(--c-light);
+      }
+      .bubble.her .bubble-sender {
+        color: var(--c-hot);
+      }
+      .bubble-meta {
+        display: block;
+        text-align: right;
+        font-size: 0.72rem;
+        color: rgba(255, 244, 247, 0.55);
+        margin-top: 6px;
+        font-weight: 600;
+      }
+
+      /* Glassmorphism Kartlar & Karşılaştırma */
+      .cards-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        justify-content: center;
+        width: 100%;
+        margin: 18px 0;
+      }
+      .glass-card {
+        flex: 1;
+        min-width: 200px;
+        max-width: 300px;
+        background: rgba(58, 7, 21, 0.45);
+        border: 1px solid rgba(255, 194, 212, 0.22);
+        padding: 22px 24px;
+        border-radius: 22px;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+      }
+      .glass-card.highlight {
+        background: rgba(255, 45, 85, 0.18);
+        border-color: rgba(255, 92, 138, 0.55);
+      }
+      .card-label {
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--c-light);
+        margin-bottom: 6px;
+      }
+      .card-num {
+        font-size: clamp(1.8rem, 4vw, 2.8rem);
+        font-weight: 900;
+        color: var(--c-cream);
+        font-variant-numeric: tabular-nums;
+      }
+      .card-sub {
+        font-size: 0.8rem;
+        color: rgba(255, 244, 247, 0.65);
+        margin-top: 4px;
+      }
+
+      .vs-bar-wrap {
+        width: 100%;
+        max-width: 560px;
+        height: 14px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        overflow: hidden;
+        display: flex;
+        margin: 10px 0 8px;
+        padding: 2px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+      }
+      .vs-left {
+        height: 100%;
+        background: linear-gradient(90deg, var(--c-red), var(--c-hot));
+        border-radius: 20px 0 0 20px;
+        transition: width 1.8s var(--ease-out);
+      }
+      .vs-right {
+        height: 100%;
+        background: var(--c-light);
+        border-radius: 0 20px 20px 0;
+        transition: width 1.8s var(--ease-out);
+      }
+
+      /* Yatay Sözlük Çubukları */
+      .bars-list {
+        width: 100%;
+        max-width: 620px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        margin: 16px 0;
+      }
+      .bar-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .bar-word {
+        width: 150px;
+        text-align: right;
+        font-weight: 700;
+        font-size: 1.05rem;
+        color: var(--c-cream);
+      }
+      .bar-track {
+        flex: 1;
+        height: 28px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 194, 212, 0.15);
+      }
+      .bar-fill-inner {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(
+          90deg,
+          var(--c-red),
+          var(--c-hot),
+          var(--c-light)
+        );
+        border-radius: 14px;
+        transition: width 1.8s var(--ease-out) 0.3s;
+      }
+      .bar-count {
+        width: 85px;
+        text-align: left;
+        font-weight: 800;
+        font-size: 1.1rem;
+        color: var(--c-light);
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* SVG Daire Sayaç */
+      .circle-box {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 35px;
+        margin: 10px 0;
+      }
+      .circle-svg {
+        position: absolute;
+        width: 115%;
+        height: 115%;
+        transform: rotate(-90deg);
+        pointer-events: none;
+      }
+      .circle-track {
+        fill: none;
+        stroke: rgba(255, 194, 212, 0.12);
+        stroke-width: 3;
+      }
+      .circle-prog {
+        fill: none;
+        stroke: var(--c-hot);
+        stroke-width: 3.5;
+        stroke-linecap: round;
+        stroke-dasharray: 283;
+        stroke-dashoffset: 283;
+        transition: stroke-dashoffset 2.4s var(--ease-out) 0.2s;
+        filter: drop-shadow(0 0 8px var(--c-red));
+      }
+
+      /* Takvim Kartı */
+      .cal-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 28px;
+        flex-wrap: wrap;
+        margin: 15px 0;
+      }
+      .cal-card {
+        width: 155px;
+        background: var(--c-cream);
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+        transform: rotate(-4deg);
+      }
+      .cal-header {
+        background: var(--c-red);
+        color: #fff;
+        font-weight: 900;
+        font-size: 1rem;
+        letter-spacing: 2px;
+        padding: 10px 0;
+        text-transform: uppercase;
+      }
+      .cal-day {
+        color: var(--bg-dark);
+        font-size: 4.4rem;
+        font-weight: 900;
+        line-height: 1;
+        padding: 12px 0 4px;
+      }
+      .cal-year {
+        color: #666;
+        font-weight: 700;
+        font-size: 0.95rem;
+        padding-bottom: 12px;
+      }
+
+      /* Analog Saat */
+      .clock-wrap {
+        position: relative;
+        width: 190px;
+        height: 190px;
+        margin: 14px auto;
+      }
+      .clock-svg {
+        width: 100%;
+        height: 100%;
+        filter: drop-shadow(0 0 25px rgba(255, 92, 138, 0.35));
+      }
+      .clock-hand {
+        transform-origin: 50px 50px;
+        transition: transform 2.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s;
+      }
+
+      /* Yüzen Emojiler */
+      .emoji-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        justify-content: center;
+        margin: 20px 0;
+      }
+      .emoji-pill {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 194, 212, 0.25);
+        border-radius: 60px;
+        padding: 20px 22px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        min-width: 115px;
+        backdrop-filter: blur(8px);
+        animation: floatPill 3.5s infinite ease-in-out alternate;
+      }
+      .emoji-pill:nth-child(1) {
+        background: rgba(255, 45, 85, 0.22);
+        border-color: var(--c-hot);
+        transform: scale(1.08);
+      }
+      .emoji-pill:nth-child(2) {
+        animation-delay: 0.6s;
+      }
+      .emoji-pill:nth-child(3) {
+        animation-delay: 1.2s;
+      }
+      .emoji-pill:nth-child(4) {
+        animation-delay: 1.8s;
+      }
+      .emoji-pill:nth-child(5) {
+        animation-delay: 2.4s;
+      }
+      .emoji-icon {
+        font-size: 2.8rem;
+        line-height: 1;
+      }
+      .emoji-val {
+        font-weight: 800;
+        font-size: 1.1rem;
+        color: var(--c-cream);
+        font-variant-numeric: tabular-nums;
+      }
+      @keyframes floatPill {
+        0% {
+          transform: translateY(-7px);
+        }
+        100% {
+          transform: translateY(7px);
+        }
+      }
+
+      /* Hitap Zaman Çizelgesi */
+      .timeline-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+        max-width: 720px;
+        margin: 16px 0;
+      }
+      .tl-badge {
+        background: rgba(255, 45, 85, 0.15);
+        border: 1px solid rgba(255, 194, 212, 0.3);
+        padding: 12px 18px;
+        border-radius: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 145px;
+      }
+      .tl-date {
+        font-size: 0.72rem;
+        color: var(--c-light);
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+      .tl-word {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: #fff;
+      }
+
+      /* Final Kalp & Daktilo */
+      .big-heart-svg {
+        width: 110px;
+        height: 110px;
+        margin-bottom: 12px;
+        filter: drop-shadow(0 0 35px var(--c-red));
+        animation: pulseHeart 1.2s infinite ease-in-out;
+      }
+      @keyframes pulseHeart {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.14);
+        }
+      }
+      .typewriter-box {
+        background: rgba(58, 7, 21, 0.55);
+        border: 1px solid rgba(255, 194, 212, 0.3);
+        padding: 24px 30px;
+        border-radius: 24px;
+        max-width: 680px;
+        min-height: 120px;
+        margin: 16px 0;
+        backdrop-filter: blur(12px);
+        font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+        line-height: 1.65;
+        color: var(--c-cream);
+        font-weight: 500;
+      }
+      .tw-cursor {
+        display: inline-block;
+        width: 3px;
+        height: 1.1em;
+        background: var(--c-hot);
+        margin-left: 4px;
+        vertical-align: middle;
+        animation: blink 0.75s infinite;
+      }
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0;
+        }
+      }
+
+      /* Başlangıç & Hız Seçim Ekranı */
+      #start-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 2000;
+        background: radial-gradient(circle at 50% 50%, #3a0715 0%, #0b0307 85%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        text-align: center;
+        transition: opacity 0.8s ease;
+      }
+      .speed-selector {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 24px;
+      }
+      .speed-opt {
+        background: rgba(255, 244, 247, 0.06);
+        border: 1px solid rgba(255, 194, 212, 0.25);
+        color: var(--c-cream);
+        font-family: var(--f-sans);
+        font-size: 0.85rem;
+        font-weight: 600;
+        padding: 10px 18px;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .speed-opt:hover {
+        border-color: var(--c-hot);
+        background: rgba(255, 45, 85, 0.15);
+      }
+      .speed-opt.selected {
+        background: rgba(255, 45, 85, 0.3);
+        border-color: var(--c-hot);
+        color: #fff;
+        box-shadow: 0 0 18px rgba(255, 45, 85, 0.35);
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, var(--c-red), var(--c-hot));
+        color: #fff;
+        font-family: var(--f-sans);
+        font-weight: 800;
+        font-size: 1.1rem;
+        padding: 16px 42px;
+        border: 1px solid var(--c-light);
+        border-radius: 50px;
+        cursor: pointer;
+        margin-top: 24px;
+        box-shadow: 0 0 35px rgba(255, 45, 85, 0.5);
+        transition:
+          transform 0.25s ease,
+          box-shadow 0.25s ease;
+        position: relative;
+        z-index: 150;
+      }
+      .btn-primary:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 50px rgba(255, 92, 138, 0.8);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="noise"></div>
+    <div class="bg-layer" id="bgLayer"></div>
+    <div class="ambient-flare"></div>
+    <canvas id="fxCanvas"></canvas>
+
+    <!-- Başlangıç Ekranı -->
+    <div id="start-overlay">
+      <div class="tag">14 KASIM • DOĞUM GÜNÜ SÜRPRİZİ</div>
+      <h1 class="title-serif" style="font-size: clamp(2.8rem, 7vw, 5.2rem)">
+        Sami & Gül<br />550 Günün Hikayesi
+      </h1>
+      <p class="desc">BAŞLAYALIM O ZAMAN KÜÇÜK HANIM 😘</p>
+
+      <div class="speed-selector" id="speedSelector">
+        <button type="button" class="speed-opt" data-mult="1.0">
+          Hızlı (1x)
+        </button>
+        <button type="button" class="speed-opt selected" data-mult="1.4">
+          Rahat Okuma (1.4x)
+        </button>
+        <button type="button" class="speed-opt" data-mult="1.8">
+          Yavaş (1.8x)
+        </button>
+        <button type="button" class="speed-opt" data-mult="0">
+          Manuel Geçiş (Sadece Tık/Tuş)
+        </button>
+      </div>
+
+      <button class="btn-primary" id="startBtn">Hikayemizi Başlat ❤️</button>
+    </div>
+
+    <!-- Üst Hikaye Çubuğu -->
+    <div class="story-header">
+      <div class="story-bars" id="storyBars"></div>
+      <div class="story-meta">
+        <span id="chapterTitle">BÖLÜM 1 • BAŞLANGIÇ</span>
+        <span id="slideCounter">1 / 29</span>
+      </div>
+    </div>
+
+    <!-- Tıklama Alanları -->
+    <div class="tap-left" id="tapLeft"></div>
+    <div class="tap-right" id="tapRight"></div>
+
+    <!-- Dinamik Sahne -->
+    <div class="stage">
+      <div class="slide-content" id="slideContent"></div>
+    </div>
+
+    <script>
+      let SURE_CARPANI = 1.4;
+
+      const slidesData = [
+        // --- BÖLÜM 1: BAŞLANGIÇ VE KUSURSUZ SÜREKLİLİK ---
+        {
+          chapter: "BÖLÜM 1 • BAŞLANGIÇ",
+          bg: "radial-gradient(circle at 50% 40%, #4A091C 0%, #0B0307 85%)",
+          dur: 7500,
+          render: () => `
+            <div class="tag stagger-item">SENİN İÇİN HAZIRLADIM</div>
+            <h1 class="title-serif stagger-item">550 Günün İzi</h1>
+            <p class="desc stagger-item">Geçen sene doğum gününde videolarımızı birleştirmiştim ve <strong>"Hayatımdaki en güzel doğum günü mesajı"</strong> demiştin.<br><br>Bu sene ise 13 Mayıs 2025'ten bugüne yazdığımız her kelimeyi, her gülüşümüzü ve her saniyemizi senin için bir araya getirdim Gülümmm...</p>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 1 • İLK KIVILCIM",
+          bg: "radial-gradient(circle at 30% 60%, #3A0715 0%, #0B0307 85%)",
+          dur: 7000,
+          render: () => `
+            <div class="tag stagger-item">13 MAYIS 2025 • INSTAGRAM</div>
+            <h2 class="title-serif stagger-item">Her Şey Bu Bahaneyle Başladı</h2>
+            <div class="chat-container stagger-item">
+              <div class="bubble me">
+                <span class="bubble-sender">Sami</span>
+                Tebrikler<br>Yenmişsiniz bizi
+                <span class="bubble-meta">13 Mayıs 2025 • İlk Mesajımız</span>
+              </div>
+              <div class="bubble me">
+                <span class="bubble-sender">Sami</span>
+                Sana da günaydın
+                <span class="bubble-meta">13 Mayıs 2025 • İlk Günaydın</span>
+              </div>
+            </div>
+            <p class="desc stagger-item">O gün sadece bir maçı değil, kalbimi de kazandığını nereden bilebilirdim ki?</p>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 1 • ZAMAN",
+          bg: "radial-gradient(circle at 70% 30%, #520A20 0%, #0B0307 85%)",
+          dur: 6500,
+          render: () => `
+            <div class="tag stagger-item">BİRLİKTE GEÇEN SÜRE</div>
+            <div class="circle-box stagger-item">
+              <svg viewBox="0 0 100 100" class="circle-svg">
+                <circle cx="50" cy="50" r="45" class="circle-track"/>
+                <circle cx="50" cy="50" r="45" class="circle-prog"/>
+              </svg>
+              <div class="giant-number count-up" data-target="550">0</div>
+            </div>
+            <div class="unit-label stagger-item">koca gün</div>
+            <p class="desc stagger-item">Tam <strong>18 ay</strong>... Hayatımın en huzurlu, en mutlu, en anlamlı 550 günü seninle geçti.</p>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 1 • KESİNTİSİZ BAĞ",
+          bg: "radial-gradient(circle at 50% 50%, #610C26 0%, #0B0307 85%)",
+          dur: 6500,
+          burst: true,
+          render: () => `
+            <div class="tag stagger-item">SIFIR BOŞLUK • %100 BİZ</div>
+            <div class="giant-number stagger-item"><span class="count-up" data-target="550">0</span>/550</div>
+            <p class="desc stagger-item">550 günün <strong>550'sinde de</strong> konuştuk.<br>Aramızda tek bir boş gün, birbirimizden habersiz geçen tek bir 24 saat bile yok.</p>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 1 • WHATSAPP'A GEÇİŞ",
+          bg: "radial-gradient(circle at 25% 75%, #3A0715 0%, #0B0307 85%)",
+          dur: 6000,
+          render: () => `
+            <div class="tag stagger-item">23 MAYIS 2025 • 23:09</div>
+            <h2 class="title-serif stagger-item">Ve WhatsApp'a Geçtiğimiz Gece</h2>
+            <div class="chat-container stagger-item">
+              <div class="bubble me">
+                <span class="bubble-sender">Sami</span>
+                Aldım gülümün numarasını ❤️
+                <span class="bubble-meta">23.05.2025 • 23:09</span>
+              </div>
+            </div>
+            <p class="desc stagger-item">Numaranı kaydettiğim o anki heyecanım hâlâ dün gibi aklımda.</p>
+          `,
+        },
+
+        // --- BÖLÜM 2: MESAJLARIMIZIN MATEMATİĞİ ---
+        {
+          chapter: "BÖLÜM 2 • RAKAMLARLA BİZ",
+          bg: "radial-gradient(circle at 60% 40%, #4E091E 0%, #0B0307 85%)",
+          dur: 6500,
+          render: () => `
+            <div class="tag stagger-item">TOPLAM MESAJ SAYIMIZ</div>
+            <div class="giant-number count-up stagger-item" data-target="347006">0</div>
+            <div class="cards-row stagger-item">
+              <div class="glass-card">
+                <div class="card-label">WhatsApp</div>
+                <div class="card-num count-up" data-target="332531">0</div>
+              </div>
+              <div class="glass-card">
+                <div class="card-label">Instagram</div>
+                <div class="card-num count-up" data-target="14475">0</div>
+              </div>
+            </div>
+            <p class="desc stagger-item">Neredeyse <strong>350 bin</strong> mesaj... Kalın bir romanın 70 katı kadar cümleyi sadece ikimiz kurduk.</p>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 2 • KLAVYE ŞAMPİYONU",
+          bg: "radial-gradient(circle at 40% 60%, #3A0715 0%, #0B0307 85%)",
+          dur: 7000,
+          render: () => `
+            <div class="tag stagger-item">KİM DAHA ÇOK YAZDI?</div>
+            <div class="cards-row stagger-item">
+              <div class="glass-card highlight">
+                <div class="card-label">Sen (Gülüm) 👑</div>
+                <div class="card-num count-up" data-target="175147">0</div>
+              </div>
+              <div class="glass-card">
+                <div class="card-label">Ben (Sami)</div>
+                <div class="card-num count-up" data-target="171859">0</div>
+              </div>
+            </div>
+            <div class="vs-bar-wrap stagger-item">
+              <div class="vs-left" data-w="50.5%"></div>
+              <div class="vs-right" data-w="49.5%"></div>
+            </div>
+            <p class="desc stagger-item">Benden tam <strong>3.288 mesaj</strong> fazla yazmışsın 😌<br>Hep son sözü sen söylemeyi seviyorsun, iyi ki de söylüyorsun.</p>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 2 • HER DAKİKA AKLIMDASIN",
+          bg: "radial-gradient(circle at 50% 30%, #580B22 0%, #0B0307 85%)",
+          dur: 6500,
+          render: () => `
+            <div class="tag stagger-item">GÜNLÜK ORTALAMAMIZ</div>
+            <div class="giant-number count-up stagger-item" data-target="631">0</div>
+            <div class="unit-label stagger-item">mesaj / her gün</div>
+            <div class="cards-row stagger-item">
+              <div class="glass-card">
+                <div class="card-label">Hafta İçi</div>
+                <div class="card-num count-up" data-target="622">0</div>
+              </div>
+              <div class="glass-card highlight">
+                <div class="card-label">Hafta Sonu</div>
+                <div class="card-num count-up" data-target="653">0</div>
+              </div>
+            </div>
+            <p class="desc stagger-item">Uyanık olduğumuz her saat, her dakika kalbim seninle atıyor.</p>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 2 • ALIŞKANLIKLARIMIZ",
+          bg: "radial-gradient(circle at 75% 65%, #3A0715 0%, #0B0307 85%)",
+          dur: 7000,
+          render: () => `
+            <div class="tag stagger-item">SESSİZLİĞİ BOZAN & MERAK EDEN</div>
+            <div class="cards-row stagger-item">
+              <div class="glass-card highlight">
+                <div class="card-label">Sessizliği İlk Bozan</div>
+                <div class="card-num">%63 Ben</div>
+                <div class="card-sub">4 saatten fazla dayanamıyorum</div>
+              </div>
+              <div class="glass-card highlight">
+                <div class="card-label">Soru İşaretleri (?)</div>
+                <div class="card-num">%59 Sen</div>
+                <div class="card-sub">En tatlı meraklı 🥹</div>
+              </div>
+            </div>
+            <p class="desc stagger-item">4 saatten uzun sessizliklerde dayanamayıp ilk yazan hep ben olmuşum, en çok soruyu soran ise sen 😄</p>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 2 • GÜNAYDIN YARIŞI",
+          bg: "radial-gradient(circle at 30% 30%, #5C0E26 0%, #0B0307 85%)",
+          dur: 7000,
+          render: () => `
+            <div class="tag stagger-item">1.200 KEZ "GÜNAYDIN"</div>
+            <h2 class="title-serif stagger-item">Önce Kim Günaydın Dedi?</h2>
+            <div class="cards-row stagger-item">
+              <div class="glass-card highlight">
+                <div class="card-label">Ben (Sami)</div>
+                <div class="card-num"><span class="count-up" data-target="255">0</span> Gün</div>
+              </div>
+              <div class="glass-card">
+                <div class="card-label">Sen (Gülüm)</div>
+                <div class="card-num"><span class="count-up" data-target="254">0</span> Gün</div>
+              </div>
+            </div>
+            <p class="desc stagger-item">550 günlük "Günaydın" yarışında seni sadece <strong>1 gün farkla</strong> geçmişim!<br>Gözümü açtığım an aklıma gelen ilk şey hep sensin.</p>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 2 • KESİNTİSİZ REKOR",
+          bg: "radial-gradient(circle at 50% 70%, #46081B 0%, #0B0307 85%)",
+          dur: 7000,
+          render: () => `
+            <div class="tag stagger-item">22 TEMMUZ 2026 • 12:29 → 01:26</div>
+            <div class="giant-number stagger-item">12,9</div>
+            <div class="unit-label stagger-item">saat aralıksız sohbet</div>
+            <p class="desc stagger-item">O gün öğlen 12:29'dan gece 01:26'ya kadar aradaki boşluk <strong>hiçbir zaman 30 dakikayı geçmeden</strong> aralıksız konuştuk.<br>Seninle konuşmaya insan nasıl doyar ki?</p>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 2 • GECENİN SAHİBİ",
+          bg: "radial-gradient(circle at 50% 50%, #14092E 0%, #060208 90%)",
+          dur: 7000,
+          clock: true,
+          render: () => `
+            <div class="tag stagger-item">EN ÇOK KONUŞTUĞUMUZ SAAT</div>
+            <div class="clock-wrap stagger-item">
+              <svg viewBox="0 0 100 100" class="clock-svg">
+                <circle cx="50" cy="50" r="46" fill="rgba(255,255,255,0.04)" stroke="var(--c-light)" stroke-width="2.5"/>
+                <line x1="50" y1="6" x2="50" y2="12" stroke="var(--c-light)" stroke-width="2"/>
+                <line x1="94" y1="50" x2="88" y2="50" stroke="var(--c-light)" stroke-width="2"/>
+                <line x1="50" y1="94" x2="50" y2="88" stroke="var(--c-light)" stroke-width="2"/>
+                <line x1="6" y1="50" x2="12" y2="50" stroke="var(--c-light)" stroke-width="2"/>
+                <g class="clock-hand" id="hHand"><line x1="50" y1="50" x2="50" y2="28" stroke="var(--c-cream)" stroke-width="3.5" stroke-linecap="round"/></g>
+                <g class="clock-hand" id="mHand"><line x1="50" y1="50" x2="50" y2="14" stroke="var(--c-hot)" stroke-width="2.5" stroke-linecap="round"/></g>
+                <circle cx="50" cy="50" r="3.5" fill="var(--c-red)"/>
+              </svg>
+            </div>
+            <h2 class="title-serif stagger-item" style="margin-bottom:4px;">23:00 — 00:00</h2>
+            <p class="desc stagger-item">Saat 23:00'da <strong>45.145</strong>, gece yarısında <strong>36.512</strong> mesaj...<br>Günün tüm yorgunluğu bittiğinde gecenin en güzel saati hep bize ait oldu 🌙</p>
+          `,
+        },
+
+        // --- BÖLÜM 3: REKORLAR VE İLK İTİRAFLAR ---
+        {
+          chapter: "BÖLÜM 3 • ZİRVE GÜNLERİMİZ",
+          bg: "radial-gradient(circle at 30% 40%, #5A0B23 0%, #0B0307 85%)",
+          dur: 7000,
+          render: () => `
+            <div class="tag stagger-item">EN ÇOK KONUŞTUĞUMUZ GÜN</div>
+            <div class="cal-wrap stagger-item">
+              <div class="cal-card">
+                <div class="cal-header">AĞUSTOS</div>
+                <div class="cal-day">4</div>
+                <div class="cal-year">2026</div>
+              </div>
+              <div>
+                <div class="giant-number count-up" data-target="2448" style="font-size:clamp(4rem, 11vw, 7.5rem);">0</div>
+                <div class="unit-label">mesaj tek günde!</div>
+              </div>
+            </div>
+            <p class="desc stagger-item">Hemen arkasından <strong>2 Haziran 2025 (2.351 mesaj)</strong> ve <strong>1 Haziran 2025 (1.844 mesaj)</strong> geliyor. O günler telefonu elimizden hiç bırakamadık.</p>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 3 • REKOR AYLAR",
+          bg: "radial-gradient(circle at 70% 60%, #44081A 0%, #0B0307 85%)",
+          dur: 6500,
+          render: () => `
+            <div class="tag stagger-item">EN YOĞUN AYLARIMIZ</div>
+            <div class="cards-row stagger-item">
+              <div class="glass-card highlight">
+                <div class="card-label">Temmuz 2025</div>
+                <div class="card-num count-up" data-target="30452">0</div>
+                <div class="card-sub">Günde ~1.000 mesaj!</div>
+              </div>
+              <div class="glass-card">
+                <div class="card-label">Temmuz 2026</div>
+                <div class="card-num count-up" data-target="27842">0</div>
+              </div>
+              <div class="glass-card">
+                <div class="card-label">Ekim 2026</div>
+                <div class="card-num count-up" data-target="26948">0</div>
+              </div>
+            </div>
+            <p class="desc stagger-item">Aylar geçse de heyecanımız hiç azalmadı, aksine her mevsim daha da kök saldı.</p>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 3 • İLK SARILMA & İLK İTİRAF",
+          bg: "radial-gradient(circle at 50% 40%, #5E0C25 0%, #0B0307 85%)",
+          dur: 7500,
+          burst: true,
+          render: () => `
+            <div class="tag stagger-item">20 MAYIS 2025 • UNUTULMAZ GÜN</div>
+            <h2 class="title-serif stagger-item">İlk Sarılışımız ve İlk "Seni Seviyorum"</h2>
+            <div class="chat-container stagger-item">
+              <div class="bubble her">
+                <span class="bubble-sender">Gülüm ❤️</span>
+                Dün sen demiştin ya sıra ben de... Ben de seni seviyorum
+                <span class="bubble-meta">20 Mayıs 2025 • Yazılı İlk İtiraf</span>
+              </div>
+              <div class="bubble me">
+                <span class="bubble-sender">Sami</span>
+                Ben de seni seviyorum... Özledim.
+                <span class="bubble-meta">20 Mayıs 2025 • İlk "Özledim"</span>
+              </div>
+            </div>
+            <p class="desc stagger-item">Doğum günümü kutladığımız o gün ilk kez sarıldık, ilk kez kalbimizi açtık.</p>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 3 • OTOGAR HÜZNÜ",
+          bg: "radial-gradient(circle at 35% 65%, #3A0715 0%, #0B0307 85%)",
+          dur: 7000,
+          render: () => `
+            <div class="tag stagger-item">AYRILIĞIN İLK ACISI</div>
+            <div class="chat-container stagger-item">
+              <div class="bubble me">
+                <span class="bubble-sender">Sami</span>
+                Ben seni nasıl otogarda bırakıp geri dönücem
+                <span class="bubble-meta">20 Mayıs 2025 • Instagram</span>
+              </div>
+              <div class="bubble her">
+                <span class="bubble-sender">Gülüm ❤️</span>
+                Seni seviyorum
+                <span class="bubble-meta">24 Mayıs 2025 • 14:04 • WhatsApp İlk İtirafın</span>
+              </div>
+            </div>
+            <p class="desc stagger-item">Daha ilk günlerden senden ayrılmak dünyanın en zor şeyine dönüşmüştü bile.</p>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 3 • KALBİMDEKİ GÜL",
+          bg: "radial-gradient(circle at 60% 35%, #550A21 0%, #0B0307 85%)",
+          dur: 7500,
+          render: () => `
+            <div class="tag stagger-item">25 MAYIS 2025</div>
+            <h2 class="title-serif stagger-item">İçimde Yetiştirdiğim En Güzel Çiçek</h2>
+            <div class="chat-container stagger-item">
+              <div class="bubble me">
+                <span class="bubble-sender">Sami</span>
+                Zarar verme içinde çok güzel bir gül yetiştiriyorum 🌹
+                <span class="bubble-meta">25.05.2025 • 11:21</span>
+              </div>
+              <div class="bubble her">
+                <span class="bubble-sender">Gülüm ❤️</span>
+                Evet bu da çok güzel ve çok hoşuma gidiyor ben çok iyi bi adamı sevmişimmm 🥹🥰
+                <span class="bubble-meta">25.05.2025 • 17:29</span>
+              </div>
+            </div>
+            <p class="desc stagger-item">Bana kendimi dünyanın en şanslı ve en değerli erkeği gibi hissettirdiğin o cümle...</p>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 3 • İYİ Kİ SEN",
+          bg: "radial-gradient(circle at 45% 55%, #4A081D 0%, #0B0307 85%)",
+          dur: 8000,
+          render: () => `
+            <div class="tag stagger-item">MAYIS 2025 SONU</div>
+            <div class="chat-container stagger-item">
+              <div class="bubble me">
+                <span class="bubble-sender">Sami</span>
+                Seni tanıyana kadar bi kalbimin olduğunu bile unutmuştum
+                <span class="bubble-meta">29.05.2025 • 14:02</span>
+              </div>
+              <div class="bubble her">
+                <span class="bubble-sender">Gülüm ❤️</span>
+                Öyleee neye baksam sen ne düşünsem sen iyi ki sen
+                <span class="bubble-meta">31.05.2025 • 00:00</span>
+              </div>
+              <div class="bubble me">
+                <span class="bubble-sender">Sami</span>
+                Öyle zaten ben nasıl bi hayır işledim de seni buldum
+                <span class="bubble-meta">31.05.2025 • 01:52</span>
+              </div>
+            </div>
+          `,
+        },
+
+        // --- BÖLÜM 4: ORTAK DİLİMİZ VE ŞAKALARIMIZ ---
+        {
+          chapter: "BÖLÜM 4 • HİTAPLARIN EVRİMİ",
+          bg: "radial-gradient(circle at 50% 50%, #520A20 0%, #0B0307 85%)",
+          dur: 7500,
+          render: () => `
+            <div class="tag stagger-item">FLÖRTTEN EŞ OLMAYA</div>
+            <h2 class="title-serif stagger-item">Birbirimize Seslenişimizin Evrimi</h2>
+            <div class="timeline-grid stagger-item">
+              <div class="tl-badge"><span class="tl-date">23 MAYIS 2025</span><span class="tl-word">"Gülüm"</span></div>
+              <div class="tl-badge"><span class="tl-date">29 MAYIS 2025</span><span class="tl-word">"Sevgilim"</span></div>
+              <div class="tl-badge"><span class="tl-date">1 HAZİRAN 2025</span><span class="tl-word">"Aşkım"</span></div>
+              <div class="tl-badge"><span class="tl-date">2 HAZİRAN 2025</span><span class="tl-word">"Kocam" (Sen)</span></div>
+              <div class="tl-badge"><span class="tl-date">10 HAZİRAN 2025</span><span class="tl-word">"Karım" (Ben)</span></div>
+              <div class="tl-badge"><span class="tl-date">14 HAZİRAN 2025</span><span class="tl-word">"Karıcım"</span></div>
+            </div>
+            <p class="desc stagger-item">Sadece 3 hafta içinde "Gülüm"den "Karım ve Kocam"a evrilen o aidiyetimiz...</p>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 4 • ORTAK SÖZLÜĞÜMÜZ",
+          bg: "radial-gradient(circle at 70% 40%, #3E0717 0%, #0B0307 85%)",
+          dur: 7500,
+          bars: true,
+          render: () => `
+            <div class="tag stagger-item">EN ÇOK KULLANDIĞIMIZ HİTAPLAR</div>
+            <div class="bars-list stagger-item">
+              <div class="bar-row">
+                <div class="bar-word">aşkım</div>
+                <div class="bar-track"><div class="bar-fill-inner" data-w="100%"></div></div>
+                <div class="bar-count count-up" data-target="44957">0</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-word">yavrum</div>
+                <div class="bar-track"><div class="bar-fill-inner" data-w="42%"></div></div>
+                <div class="bar-count count-up" data-target="17173">0</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-word">bebeğim</div>
+                <div class="bar-track"><div class="bar-fill-inner" data-w="41%"></div></div>
+                <div class="bar-count count-up" data-target="17096">0</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-word">sevgilim</div>
+                <div class="bar-track"><div class="bar-fill-inner" data-w="22%"></div></div>
+                <div class="bar-count count-up" data-target="8296">0</div>
+              </div>
+            </div>
+            <p class="desc stagger-item">Sen bana <strong>24.270 kez "aşkım"</strong> dedin, ben ise sana <strong>17.173 kez "yavrum"</strong> ve <strong>15.143 kez "bebeğim"</strong> dedim.</p>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 4 • GELECEĞİN PROVASI",
+          bg: "radial-gradient(circle at 30% 70%, #580B22 0%, #0B0307 85%)",
+          dur: 7000,
+          render: () => `
+            <div class="tag stagger-item">KARIM & KOCAM</div>
+            <div class="cards-row stagger-item">
+              <div class="glass-card highlight">
+                <div class="card-label">"Karım" (Benden Sana)</div>
+                <div class="card-num count-up" data-target="5248">0</div>
+              </div>
+              <div class="glass-card highlight">
+                <div class="card-label">"Kocam" (Senden Bana)</div>
+                <div class="card-num count-up" data-target="3447">0</div>
+              </div>
+              <div class="glass-card">
+                <div class="card-label">"Balım"</div>
+                <div class="card-num count-up" data-target="1485">0</div>
+              </div>
+            </div>
+            <p class="desc stagger-item">Daha şimdiden 8.700'den fazla kez birbirimize "Karım" ve "Kocam" diye seslendik. Gerçeğine çok az kaldı 💍</p>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 4 • SABIRLI GICIĞIM",
+          bg: "radial-gradient(circle at 50% 35%, #4A081D 0%, #0B0307 85%)",
+          dur: 7500,
+          render: () => `
+            <div class="tag stagger-item">TATLI İNATLAŞMALARIMIZ</div>
+            <div class="cards-row stagger-item">
+              <div class="glass-card highlight">
+                <div class="card-label">"Gıcık"</div>
+                <div class="card-num count-up" data-target="4818">0</div>
+                <div class="card-sub">3.626 tanesi senden 😄</div>
+              </div>
+              <div class="glass-card">
+                <div class="card-label">"Aferin"</div>
+                <div class="card-num count-up" data-target="4305">0</div>
+                <div class="card-sub">Yarı yarıya (2.223 / 2.082)</div>
+              </div>
+            </div>
+            <div class="chat-container stagger-item">
+              <div class="bubble her">
+                <span class="bubble-sender">Gülüm ❤️</span>
+                Hıhı en sevdiğim silahım o benim sabırlı gıcığım
+                <span class="bubble-meta">25.06.2025 • 02:28</span>
+              </div>
+            </div>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 4 • ŞEFKAT KELİMELERİMİZ",
+          bg: "radial-gradient(circle at 65% 65%, #3A0715 0%, #0B0307 85%)",
+          dur: 7500,
+          render: () => `
+            <div class="tag stagger-item">BİRBİRİMİZE KIYAMAYIŞIMIZ</div>
+            <div class="cards-row stagger-item">
+              <div class="glass-card">
+                <div class="card-label">"Kıyamam"</div>
+                <div class="card-num count-up" data-target="3608">0</div>
+              </div>
+              <div class="glass-card highlight">
+                <div class="card-label">"Sana Kurban Olurum"</div>
+                <div class="card-num count-up" data-target="1215">0</div>
+              </div>
+            </div>
+            <div class="cards-row stagger-item" style="margin-top:0;">
+              <div class="glass-card">
+                <div class="card-label">"Oley" (Çocuksu Sevincim)</div>
+                <div class="card-num count-up" data-target="2790">0</div>
+              </div>
+              <div class="glass-card">
+                <div class="card-label">"İçim Kıpır Kıpır"</div>
+                <div class="card-num count-up" data-target="1090">0</div>
+              </div>
+            </div>
+            <p class="desc stagger-item">"İçim kıpır kıpır" cümlesini bile neredeyse birebir eşit (Sen: 547, Ben: 543) kullanmışız. Kalplerimiz bile aynı ritimde!</p>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 4 • BİZE ÖZEL KALIPLAR",
+          bg: "radial-gradient(circle at 30% 45%, #510920 0%, #0B0307 85%)",
+          dur: 7500,
+          render: () => `
+            <div class="tag stagger-item">BAŞKA KİMSE BİZİM GİBİ KONUŞAMAZ</div>
+            <div class="bars-list stagger-item">
+              <div class="bar-row">
+                <div class="bar-word">haberin olsun</div>
+                <div class="bar-track"><div class="bar-fill-inner" data-w="100%"></div></div>
+                <div class="bar-count count-up" data-target="3209">0</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-word">rica ederim</div>
+                <div class="bar-track"><div class="bar-fill-inner" data-w="78%"></div></div>
+                <div class="bar-count count-up" data-target="2518">0</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-word">dikkat et aşkım</div>
+                <div class="bar-track"><div class="bar-fill-inner" data-w="32%"></div></div>
+                <div class="bar-count count-up" data-target="664">0</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-word">Sami bey / Gül hanım</div>
+                <div class="bar-track"><div class="bar-fill-inner" data-w="22%"></div></div>
+                <div class="bar-count count-up" data-target="424">0</div>
+              </div>
+            </div>
+            <p class="desc stagger-item">Birbirimize haber vermeden adım atmayışımız, bazen de "öyle diyorsan öyledir" (313 kez) deyip "Sami Bey ve Gül Hanım"a bağlayışımız 😄</p>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 4 • AŞKTAN ŞAŞKIN HALLERİM",
+          bg: "radial-gradient(circle at 60% 30%, #44081B 0%, #0B0307 85%)",
+          dur: 8500,
+          render: () => `
+            <div class="tag stagger-item">AKLIMI BAŞIMDAN ALDIĞIN ANLAR</div>
+            <div class="chat-container stagger-item">
+              <div class="bubble me">
+                <span class="bubble-sender">Sami</span>
+                Seni görünce uçuyo kelimeler 3 dilde de konuşamaz hale gelıyom
+                <span class="bubble-meta">16.05.2025 • Instagram</span>
+              </div>
+              <div class="bubble me">
+                <span class="bubble-sender">Sami</span>
+                Odadan çıktım elimde telefon birde tırnak makası. Ne yapıyom dedim
+                <span class="bubble-meta">28.05.2025 • 19:17</span>
+              </div>
+              <div class="bubble me">
+                <span class="bubble-sender">Sami</span>
+                Çıkarken girişe basıp çıktım sonra döndüm çıkışa parmak bastım
+                <span class="bubble-meta">28.05.2025 • 19:26</span>
+              </div>
+            </div>
+            <p class="desc stagger-item">Seninle konuşurken elim ayağım öyle bir dolaşıyordu ki ne yaptığımı bile bilmiyordum 😄</p>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 4 • LEYLA HALLERİMİZ",
+          bg: "radial-gradient(circle at 40% 70%, #580B22 0%, #0B0307 85%)",
+          dur: 8500,
+          render: () => `
+            <div class="tag stagger-item">İKİMİZ DE LEYLA OLDUK</div>
+            <div class="chat-container stagger-item">
+              <div class="bubble her">
+                <span class="bubble-sender">Gülüm ❤️</span>
+                Leylalığımdan oldu melek bakmamış ben de bakmadım yanlış otobüse binmişiz
+                <span class="bubble-meta">26.05.2025 • 18:29</span>
+              </div>
+              <div class="bubble me">
+                <span class="bubble-sender">Sami</span>
+                Bak o gün mutluluktan dışarıda ömerle halay çektim ya bunu bile unutmuşum
+                <span class="bubble-meta">21.05.2025 • Instagram</span>
+              </div>
+              <div class="bubble me">
+                <span class="bubble-sender">Sami</span>
+                Adamlar tartışırken ben telefona bakıp mal mal sırıtıyom
+                <span class="bubble-meta">16.05.2025 • Instagram</span>
+              </div>
+            </div>
+          `,
+        },
+
+        // --- BÖLÜM 5: BİZİ BİZ YAPAN DETAYLAR VE DUYGUSAL ANLAR ---
+        {
+          chapter: "BÖLÜM 5 • KÜÇÜK SÜRPRİZLER",
+          bg: "radial-gradient(circle at 50% 45%, #4E091E 0%, #0B0307 85%)",
+          dur: 8000,
+          render: () => `
+            <div class="tag stagger-item">EN SAF MUTLULUKLARIMIZ</div>
+            <div class="chat-container stagger-item">
+              <div class="bubble her">
+                <span class="bubble-sender">Gülüm ❤️</span>
+                Üzüldüm diye kalkıp gelmiş o kadar düşünüp mutlu oliyim diye sürpriz yumurta almış o kadar değerli hissettim ki kendimi...
+                <span class="bubble-meta">04.06.2025 • 00:05</span>
+              </div>
+              <div class="bubble me">
+                <span class="bubble-sender">Sami</span>
+                Yani çikolata favorim ama bu kalp yapıyo diye sana atıyım diye aldım ❤️
+                <span class="bubble-meta">23.10.2025 • 13:06</span>
+              </div>
+            </div>
+            <p class="desc stagger-item">Senin yüzündeki tek bir gülümseme, dünyadaki her şeye bedel.</p>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 5 • ESKİ KÖY AĞASI GİBİ",
+          bg: "radial-gradient(circle at 30% 60%, #3A0715 0%, #0B0307 85%)",
+          dur: 8500,
+          render: () => `
+            <div class="tag stagger-item">DOĞUM GÜNÜ ÇANTANI SEÇERKEN</div>
+            <div class="chat-container stagger-item">
+              <div class="bubble her">
+                <span class="bubble-sender">Gülüm ❤️</span>
+                ...bende şimdiden doğum günümü kutlamanı çantayı çok beğendim o an heyecan şaşırma özlem ile...
+                <span class="bubble-meta">28.10.2026 • 15:31</span>
+              </div>
+              <div class="bubble me">
+                <span class="bubble-sender">Sami</span>
+                Yaniiii o çantayı seçmek için olabildiğince düşündüm eski köy ağası gibi elimi arkaya bağladım durdum baktım çantalarını düşündüm hayal ettim bu olur dedim
+                <span class="bubble-meta">30.10.2026 • 22:23</span>
+              </div>
+            </div>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 5 • O GÜZEL GÖZLERİN",
+          bg: "radial-gradient(circle at 60% 50%, #610C26 0%, #0B0307 85%)",
+          dur: 8500,
+          render: () => `
+            <div class="tag stagger-item">İLK BAKIŞTA AŞK</div>
+            <h2 class="title-serif stagger-item">O Bi Siyah Bi Kahverengi Gözlerin...</h2>
+            <div class="chat-container stagger-item">
+              <div class="bubble me">
+                <span class="bubble-sender">Sami</span>
+                ...senle ilk buluşmada sen konuşurken gözlerine bakıyordum orda aşık olmuştum sonra parkta otururken bi anda hadi gözlerine bakıcam...
+                <span class="bubble-meta">10.07.2025 • 18:16</span>
+              </div>
+              <div class="bubble me">
+                <span class="bubble-sender">Sami</span>
+                Gözlerine bakarım o bi siyah bi kahverengi olan gözlerine o gülünce içi parlayan gözlerine o bana masum bebekler gibi bakan gözlerine...
+                <span class="bubble-meta">14.08.2025 • 22:02</span>
+              </div>
+            </div>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 5 • KOKUN, ŞARKIMIZ VE YILDIZLAR",
+          bg: "radial-gradient(circle at 40% 35%, #44081B 0%, #0B0307 85%)",
+          dur: 8500,
+          render: () => `
+            <div class="tag stagger-item">DUYULARIMIZDAKİ İZLER</div>
+            <div class="chat-container stagger-item">
+              <div class="bubble her">
+                <span class="bubble-sender">Gülüm ❤️</span>
+                Duman her şeyi yak dinliyorduk
+                <span class="bubble-meta">25.05.2025 • Şarkımız</span>
+              </div>
+              <div class="bubble her">
+                <span class="bubble-sender">Gülüm ❤️</span>
+                ...dün gökyüzünü izliyorum demiştim ya gökyüzündeki yıldızlar sanki sendin seni izliyor gibiydim...
+                <span class="bubble-meta">22.08.2025 • 18:37</span>
+              </div>
+              <div class="bubble her">
+                <span class="bubble-sender">Gülüm ❤️</span>
+                Bu hayatta en sevdiğim koku senin kokun bir ömür içime çekerim kokunu
+                <span class="bubble-meta">24.08.2025 • 22:53</span>
+              </div>
+            </div>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 5 • EMOJİLERİMİZ",
+          bg: "radial-gradient(circle at 50% 60%, #550A21 0%, #0B0307 85%)",
+          dur: 7000,
+          render: () => `
+            <div class="tag stagger-item">EN ÇOK KULLANDIĞIMIZ EMOJİLER</div>
+            <div class="emoji-row stagger-item">
+              <div class="emoji-pill">
+                <span class="emoji-icon">😘</span>
+                <span class="emoji-val count-up" data-target="30195">0</span>
+              </div>
+              <div class="emoji-pill">
+                <span class="emoji-icon">🥹</span>
+                <span class="emoji-val count-up" data-target="11531">0</span>
+              </div>
+              <div class="emoji-pill">
+                <span class="emoji-icon">🥺</span>
+                <span class="emoji-val count-up" data-target="10362">0</span>
+              </div>
+              <div class="emoji-pill">
+                <span class="emoji-icon">😚</span>
+                <span class="emoji-val count-up" data-target="8485">0</span>
+              </div>
+              <div class="emoji-pill">
+                <span class="emoji-icon">🥰</span>
+                <span class="emoji-val count-up" data-target="8339">0</span>
+              </div>
+            </div>
+            <p class="desc stagger-item">Benden sana <strong>21.075 öpücük (😘)</strong>, senden bana <strong>8.548 dolan göz (🥹)</strong>...<br>Kelimelerin yetmediği yerde hep kalbimiz konuştu.</p>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 5 • ÖZLEMİMİZ VE SABAHLARIMIZ",
+          bg: "radial-gradient(circle at 30% 40%, #3E0717 0%, #0B0307 85%)",
+          dur: 8000,
+          render: () => `
+            <div class="tag stagger-item">1.567 KEZ "ÖZLEDİM"</div>
+            <div class="chat-container stagger-item">
+              <div class="bubble her">
+                <span class="bubble-sender">Gülüm ❤️</span>
+                Yaaaaaa ben iyi ki sana aşığım iyi ki bir ömür seninle olmak istiyorum bir ömrüm daha olsa onu da seninle geçirmek isterim senin kalbini çok seviyorum...
+                <span class="bubble-meta">21.01.2026 • 18:45</span>
+              </div>
+              <div class="bubble her">
+                <span class="bubble-sender">Gülüm ❤️</span>
+                Bir ömür seninle uyumak seninle uyanmak istiyorum günüm seninle başlasın seninle son bulsun istiyorum her anım her saniyem seninle sen ol istiyorum
+                <span class="bubble-meta">22.01.2026 • 23:24</span>
+              </div>
+            </div>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 5 • GELECEKTEKİ AİLEMİZ",
+          bg: "radial-gradient(circle at 65% 45%, #5C0C24 0%, #0B0307 85%)",
+          dur: 8500,
+          render: () => `
+            <div class="tag stagger-item">HAYALLERİMİZ VE ÇOCUKLARIMIZ</div>
+            <div class="chat-container stagger-item">
+              <div class="bubble me">
+                <span class="bubble-sender">Sami</span>
+                Gözüne baktım tutuldum sonra aşık oldum benim sevgilim oldu benim hayatım oldu... benim karım olcak kızımla oğlumun annesi...
+                <span class="bubble-meta">29.08.2025 • 23:28</span>
+              </div>
+              <div class="bubble me">
+                <span class="bubble-sender">Sami</span>
+                Hani ben sana kızımız olursa adını öykü rüya falan koyalım dedim ya... biz hani sürekli umut edicez diyoruz ya umut olsa nasıl olur yavrummmmmmmmmm hııı
+                <span class="bubble-meta">08.08.2026 • 22:23</span>
+              </div>
+              <div class="bubble her">
+                <span class="bubble-sender">Gülüm ❤️</span>
+                Olurrrr ama... kızımızın da oğlumuzun da kaderi kendine özgü olsun istiyorum
+                <span class="bubble-meta">08.08.2026 • 23:33</span>
+              </div>
+            </div>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 5 • ŞANS DEĞİL KADER",
+          bg: "radial-gradient(circle at 50% 50%, #680D29 0%, #0B0307 85%)",
+          dur: 8500,
+          render: () => `
+            <div class="tag stagger-item">31 EKİM 2026 • EN DERİN SÖZÜN</div>
+            <h2 class="title-serif stagger-item">"Şans Değil, Kader..."</h2>
+            <div class="chat-container stagger-item">
+              <div class="bubble her">
+                <span class="bubble-sender">Gülüm ❤️</span>
+                Evet seninle karşılaşmam şans değil kader sen benim kaderimdin şansım olsan bir gün giderdin çünkü şans sürekli olan birşey değil ama kader ömürlük...
+                <span class="bubble-meta">31.10.2026 • 17:37</span>
+              </div>
+              <div class="bubble me">
+                <span class="bubble-sender">Sami</span>
+                Her şeyimsin, hazinemsin, kalbimsin, ruhumsun, nefesimsin, en değerli varlığımsın, neşemsin, bebeğimsin, mutluluğumsun, ömrümsün...
+                <span class="bubble-meta">31.07.2026 • 09:04</span>
+              </div>
+            </div>
+          `,
+        },
+
+        // --- BÖLÜM 6: DUYGUSAL DORUK VE BÜYÜK FİNAL ---
+        {
+          chapter: "BÖLÜM 6 • BUGÜN",
+          bg: "radial-gradient(circle at 50% 40%, #580B22 0%, #0B0307 85%)",
+          dur: 7000,
+          burst: true,
+          render: () => `
+            <div class="tag stagger-item">13 KASIM 2026 • 13:10 • SON MESAJIN</div>
+            <h2 class="title-serif stagger-item">550. Günümüzde Bile İlk Günkü Heyecanla</h2>
+            <div class="chat-container stagger-item">
+              <div class="bubble her">
+                <span class="bubble-sender">Gülüm ❤️</span>
+                Sana çok ama çok çok çok çok çok çok çok çok çok çok çok çok çok çok aşığımmmmmmmmmmm hayatımın anlamııı
+                <span class="bubble-meta">13.11.2026 • 13:10 (Bugün)</span>
+              </div>
+            </div>
+            <p class="desc stagger-item">Aradan geçen 347.006 mesajdan sonra bile kalbimi ilk günkü gibi titretiyorsun.</p>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 6 • SEVGİ SAYACIMIZ",
+          bg: "radial-gradient(circle at 50% 50%, #4E091E 0%, #0B0307 85%)",
+          dur: 7000,
+          render: () => `
+            <div class="tag stagger-item">BUGÜNE KADAR</div>
+            <div class="giant-number count-up stagger-item" data-target="7451">0</div>
+            <div class="unit-label stagger-item">mesajda "seviyorum" dedik</div>
+            <div class="cards-row stagger-item">
+              <div class="glass-card highlight">
+                <div class="card-label">Tam "Seni Seviyorum"</div>
+                <div class="card-num count-up" data-target="2151">0</div>
+                <div class="card-sub">Sen: 1.095 • Ben: 1.056</div>
+              </div>
+              <div class="glass-card">
+                <div class="card-label">"Seviyorum Seni"</div>
+                <div class="card-num count-up" data-target="471">0</div>
+                <div class="card-sub">Ben: 312 • Sen: 159</div>
+              </div>
+            </div>
+          `,
+        },
+        {
+          chapter: "BÖLÜM 6 • SAKLANAN İTİRAF",
+          bg: "radial-gradient(circle at 50% 50%, #7A0D2E 0%, #050103 95%)",
+          dur: 7500,
+          burst: true,
+          render: () => `
+            <div class="tag stagger-item">VE ŞİMDİ...</div>
+            <h2 class="title-serif stagger-item" style="font-size:clamp(2rem, 5vw, 3.6rem);">2.151 kere "Seni Seviyorum" dedik...</h2>
+            <div class="stagger-item" style="margin: 26px 0;">
+              <h1 class="title-serif" style="color:var(--c-hot); -webkit-text-fill-color:var(--c-hot); animation: pulseHeart 1.3s infinite;">
+                2.152. "Seni Seviyorum" ise<br>14 Kasım'ın ilk saniyesi için saklandı ❤️
+              </h1>
+            </div>
+            <p class="desc stagger-item">Çünkü her yeni yaşında seni bir öncekinden çok daha fazla seveceğim.</p>
+          `,
+        },
+        {
+          chapter: "FİNAL • 14 KASIM",
+          bg: "radial-gradient(circle at 50% 45%, #8F0F35 0%, #0B0307 92%)",
+          dur: 25000,
+          finale: true,
+          render: () => `
+            <svg viewBox="0 0 100 100" class="big-heart-svg stagger-item">
+              <path d="M50,88 C50,88 10,60 10,34 C10,16 34,14 50,33 C66,14 90,16 90,34 C90,60 50,88 50,88 Z" fill="#FF2D55"/>
+            </svg>
+            <div class="tag stagger-item">14 KASIM • DOĞUM GÜNÜN KUTLU OLSUN</div>
+            <h1 class="title-serif stagger-item">İyi ki Doğdun Gülümmmm ❤️</h1>
+            <div class="typewriter-box stagger-item">
+              <span id="twText"></span><span class="tw-cursor"></span>
+            </div>
+            <p class="desc stagger-item" id="finalSub" style="opacity:0; transition:opacity 1s; font-weight:700; color:var(--c-light);">
+              Seni her şeyden ve herkesten çok seviyorum karıcım. Nice mutlu senelerimize!
+            </p>
+            <button class="btn-primary" id="replayBtn" style="opacity:0; transition:opacity 1s; padding:12px 32px; font-size:0.95rem;">
+              Baştan İzle ↻
+            </button>
+          `,
+        },
+      ];
+
+      // ==========================================
+      // 2. CANVAS PARTICLE SİSTEMİ (KALP & KONFETİ)
+      // ==========================================
+      const canvas = document.getElementById("fxCanvas");
+      const ctx = canvas.getContext("2d");
+      let cw, ch;
+      let particles = [];
+      const pColors = ["#FF2D55", "#FF5C8A", "#FFC2D4", "#FFF4F7", "#7A0D2E"];
+
+      function resizeCanvas() {
+        cw = canvas.width = window.innerWidth;
+        ch = canvas.height = window.innerHeight;
+      }
+      window.addEventListener("resize", resizeCanvas);
+      resizeCanvas();
+
+      class HeartParticle {
+        constructor(isBurst = false, bx = 0, by = 0) {
+          this.isBurst = isBurst;
+          if (isBurst) {
+            this.x = bx;
+            this.y = by;
+            const ang = Math.random() * Math.PI * 2;
+            const spd = Math.random() * 9 + 2;
+            this.vx = Math.cos(ang) * spd;
+            this.vy = Math.sin(ang) * spd - 2;
+            this.gravity = 0.14;
+            this.size = Math.random() * 10 + 5;
+            this.alpha = 1;
+            this.decay = Math.random() * 0.012 + 0.008;
+          } else {
+            this.reset(true);
+          }
+          this.color = pColors[Math.floor(Math.random() * pColors.length)];
+          this.swing = Math.random() * Math.PI * 2;
+          this.swingSpeed = Math.random() * 0.02 + 0.008;
+        }
+        reset(initial = false) {
+          this.x = Math.random() * cw;
+          this.y = initial ? Math.random() * ch : ch + 40;
+          this.size = Math.random() * 14 + 4;
+          this.vy = -(Math.random() * 0.9 + 0.3);
+          this.vx = (Math.random() - 0.5) * 0.3;
+          this.gravity = 0;
+          this.alpha = Math.random() * 0.45 + 0.1;
+          this.decay = 0;
+        }
+        update() {
+          this.x += this.vx;
+          this.y += this.vy;
+          this.vy += this.gravity;
+          this.swing += this.swingSpeed;
+          if (this.isBurst) {
+            this.alpha -= this.decay;
+          } else if (this.y < -50) {
+            this.reset(false);
+          }
+        }
+        draw() {
+          if (this.alpha <= 0) return;
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, this.alpha);
+          ctx.fillStyle = this.color;
+          const drawX = this.isBurst
+            ? this.x
+            : this.x + Math.sin(this.swing) * 15;
+          ctx.translate(drawX, this.y);
+          ctx.beginPath();
+          const s = this.size;
+          const topCurve = s * 0.3;
+          ctx.moveTo(0, topCurve);
+          ctx.bezierCurveTo(0, 0, -s / 2, 0, -s / 2, topCurve);
+          ctx.bezierCurveTo(-s / 2, s, 0, s * 1.3, 0, s * 1.55);
+          ctx.bezierCurveTo(0, s * 1.3, s / 2, s, s / 2, topCurve);
+          ctx.bezierCurveTo(s / 2, 0, 0, 0, 0, topCurve);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
+      for (let i = 0; i < 50; i++) particles.push(new HeartParticle(false));
+
+      function triggerHeartBurst(x = cw / 2, y = ch / 2, count = 55) {
+        for (let i = 0; i < count; i++) {
+          particles.push(new HeartParticle(true, x, y));
+        }
+      }
+
+      function animateCanvas() {
+        ctx.clearRect(0, 0, cw, ch);
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const p = particles[i];
+          p.update();
+          p.draw();
+          if (p.isBurst && p.alpha <= 0) particles.splice(i, 1);
+        }
+        requestAnimationFrame(animateCanvas);
+      }
+      animateCanvas();
+
+      // ==========================================
+      // 3. SLAYT YÖNETİCİSİ VE SÜRE KONTROLÜ
+      // ==========================================
+      const storyBarsEl = document.getElementById("storyBars");
+      const slideContentEl = document.getElementById("slideContent");
+      const bgLayerEl = document.getElementById("bgLayer");
+      const chapterTitleEl = document.getElementById("chapterTitle");
+      const slideCounterEl = document.getElementById("slideCounter");
+
+      let currentIndex = 0;
+      let slideTimeout = null;
+      let finaleInterval = null;
+      let typewriterTimeout = null;
+      let isPaused = false;
+      let barFills = [];
+
+      // Başlangıç Ekranı Hız Seçici
+      document.querySelectorAll(".speed-opt").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          document
+            .querySelectorAll(".speed-opt")
+            .forEach((b) => b.classList.remove("selected"));
+          btn.classList.add("selected");
+          SURE_CARPANI = parseFloat(btn.getAttribute("data-mult"));
+        });
+      });
+
+      // Üstteki İlerleme Çubuklarını Oluştur
+      slidesData.forEach(() => {
+        const w = document.createElement("div");
+        w.className = "bar-wrap";
+        const f = document.createElement("div");
+        f.className = "bar-fill";
+        w.appendChild(f);
+        storyBarsEl.appendChild(w);
+        barFills.push(f);
+      });
+
+      function formatTurkishNumber(n) {
+        return Math.floor(n)
+          .toString()
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      }
+
+      function easeOutExpo(x) {
+        return x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
+      }
+
+      function runInnerAnimations(slideObj) {
+        const counters = slideContentEl.querySelectorAll(".count-up");
+        counters.forEach((el) => {
+          const target = parseInt(el.getAttribute("data-target"), 10);
+          if (isNaN(target)) return;
+          const duration = 2100;
+          let startTs = null;
+          function step(ts) {
+            if (!startTs) startTs = ts;
+            const prog = Math.min((ts - startTs) / duration, 1);
+            const val = easeOutExpo(prog) * target;
+            el.textContent = formatTurkishNumber(val);
+            if (prog < 1) requestAnimationFrame(step);
+            else el.textContent = formatTurkishNumber(target);
+          }
+          requestAnimationFrame(step);
+        });
+
+        const circleProg = slideContentEl.querySelector(".circle-prog");
+        if (circleProg) {
+          setTimeout(() => {
+            circleProg.style.strokeDashoffset = "0";
+          }, 150);
+        }
+
+        const bars = slideContentEl.querySelectorAll(
+          ".vs-left, .vs-right, .bar-fill-inner",
+        );
+        bars.forEach((b) => {
+          const targetW = b.getAttribute("data-w");
+          b.style.width = "0%";
+          setTimeout(() => {
+            b.style.width = targetW;
+          }, 250);
+        });
+
+        if (slideObj.clock) {
+          const hHand = document.getElementById("hHand");
+          const mHand = document.getElementById("mHand");
+          if (hHand && mHand) {
+            hHand.style.transform = "rotate(0deg)";
+            mHand.style.transform = "rotate(0deg)";
+            setTimeout(() => {
+              mHand.style.transform = `rotate(${360 * 4}deg)`;
+              hHand.style.transform = `rotate(${360 * 2 + 330}deg)`;
+            }, 150);
+          }
+        }
+
+        if (slideObj.burst) {
+          setTimeout(() => triggerHeartBurst(cw / 2, ch / 2, 55), 500);
+        }
+
+        if (slideObj.finale) {
+          triggerHeartBurst(cw / 2, ch / 3, 70);
+          finaleInterval = setInterval(() => {
+            triggerHeartBurst(cw * (0.2 + Math.random() * 0.6), ch * 0.3, 35);
+          }, 900);
+          setTimeout(() => clearInterval(finaleInterval), 5500);
+
+          const twEl = document.getElementById("twText");
+          const finalSub = document.getElementById("finalSub");
+          const replayBtn = document.getElementById("replayBtn");
+          const fullMessage =
+            "İyi ki doğdun, iyi ki benim kaderim oldun, iyi ki hayatıma girdin, iyi ki varsın. Bu doğum gününde yanında olamıyorum ama bugün,her gün,heran tüm kalbimle seninleyim Ay Parçam. Seni her şeyden ve herkesten çok seviyorum karıcım. Nice mutlu senelerimize! EVLEN BENİMLE OLUR MUUUUUUU HAYATIMMMMMMMMMMMMM?????????????😊❤️";
+          let charIdx = 0;
+
+          typewriterTimeout = setTimeout(() => {
+            function typeChar() {
+              if (charIdx < fullMessage.length) {
+                twEl.textContent += fullMessage.charAt(charIdx);
+                charIdx++;
+                typewriterTimeout = setTimeout(typeChar, 42);
+              } else {
+                if (finalSub) finalSub.style.opacity = "1";
+                if (replayBtn) {
+                  replayBtn.style.opacity = "1";
+                  replayBtn.onclick = () => goToSlide(0);
+                }
+              }
+            }
+            typeChar();
+          }, 900);
+        }
+      }
+
+      function goToSlide(index) {
+        clearTimeout(slideTimeout);
+        clearInterval(finaleInterval);
+        clearTimeout(typewriterTimeout);
+
+        if (index < 0) index = 0;
+        if (index >= slidesData.length) index = slidesData.length - 1;
+        currentIndex = index;
+
+        const slideObj = slidesData[currentIndex];
+        const effectiveDur =
+          SURE_CARPANI === 0 ? 0 : Math.round(slideObj.dur * SURE_CARPANI);
+
+        slideContentEl.classList.remove("slide-active");
+        slideContentEl.classList.add("slide-exit");
+
+        setTimeout(() => {
+          slideContentEl.classList.remove("slide-exit");
+          slideContentEl.innerHTML = slideObj.render();
+
+          // Stagger gecikmelerini başlangıç durumu çizilmeden önce tanımla
+          const items = slideContentEl.querySelectorAll(".stagger-item");
+          items.forEach((el, idx) => {
+            el.style.transitionDelay = `${idx * 130 + 80}ms`;
+          });
+
+          bgLayerEl.style.background = slideObj.bg;
+          chapterTitleEl.textContent = slideObj.chapter;
+          slideCounterEl.textContent = `${currentIndex + 1} / ${slidesData.length}`;
+
+          barFills.forEach((fill, idx) => {
+            fill.style.transition = "none";
+            if (idx < currentIndex) {
+              fill.style.width = "100%";
+            } else if (idx === currentIndex && effectiveDur === 0) {
+              fill.style.width = "100%";
+            } else {
+              fill.style.width = "0%";
+            }
+          });
+
+          // Tarayıcıyı başlangıç stilini (opacity: 0) hesaplamaya zorla (Reflow)
+          void slideContentEl.offsetHeight;
+          void barFills[currentIndex].offsetWidth;
+
+          requestAnimationFrame(() => {
+            slideContentEl.classList.add("slide-active");
+            runInnerAnimations(slideObj);
+
+            if (!isPaused && effectiveDur > 0) {
+              barFills[currentIndex].style.transition =
+                `width ${effectiveDur}ms linear`;
+              barFills[currentIndex].style.width = "100%";
+            }
+          });
+
+          if (
+            currentIndex < slidesData.length - 1 &&
+            !isPaused &&
+            effectiveDur > 0
+          ) {
+            slideTimeout = setTimeout(() => {
+              goToSlide(currentIndex + 1);
+            }, effectiveDur);
+          }
+        }, 280);
+      }
+
+      // Tıklama ve Klavye Kontrolleri
+      document.getElementById("tapRight").addEventListener("click", () => {
+        if (currentIndex < slidesData.length - 1) goToSlide(currentIndex + 1);
+      });
+      document.getElementById("tapLeft").addEventListener("click", () => {
+        if (currentIndex > 0) goToSlide(currentIndex - 1);
+      });
+
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight") {
+          if (currentIndex < slidesData.length - 1) goToSlide(currentIndex + 1);
+        } else if (e.key === "ArrowLeft") {
+          if (currentIndex > 0) goToSlide(currentIndex - 1);
+        } else if (e.key === " ") {
+          e.preventDefault();
+          isPaused = !isPaused;
+          if (isPaused) {
+            clearTimeout(slideTimeout);
+            const computedWidth = window.getComputedStyle(
+              barFills[currentIndex],
+            ).width;
+            barFills[currentIndex].style.transition = "none";
+            barFills[currentIndex].style.width = computedWidth;
+            chapterTitleEl.textContent = "⏸ DURAKLATILDI (DEVAM İÇİN BOŞLUK)";
+          } else {
+            goToSlide(currentIndex);
+          }
+        }
+      });
+
+      // Başlat Butonu
+      document.getElementById("startBtn").addEventListener("click", () => {
+        const overlay = document.getElementById("start-overlay");
+        overlay.style.opacity = "0";
+        setTimeout(() => {
+          overlay.style.display = "none";
+          goToSlide(0);
+        }, 700);
+      });
+    </script>
+  </body>
+</html>
